@@ -2,11 +2,16 @@ package de.abgruen.igc2kml;
 
 import de.abgruen.igc2kml.model.IGCBRecord;
 import de.abgruen.igc2kml.model.IGCFile;
-import de.micromata.opengis.kml.v_2_2_0.*;
 
 import java.io.*;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Map;
+
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import freemarker.template.Version;
 
 public class IGCReader {
     String inputFile;
@@ -16,60 +21,35 @@ public class IGCReader {
         this.outputFile = outputFile;
     }
 
-    public void parse() throws IOException {
+    public void parse() throws IOException, TemplateException {
 
-        final Kml kml = new Kml();
-        Document document = kml.createAndSetDocument();
+        IGCFile igcFile = new IGCFile(inputFile);
+        System.out.println(String.format("File parsed. Pilot %s on Wing %s at %s", igcFile.getPilot(), igcFile.getGliderType(), igcFile.getDate()));
+        System.out.println(String.format("Takeoff time: %s, Landing time: %s, max altitude: %d, min altitude %d.", igcFile.getTakeOffTime(), igcFile.getLandingTime(), igcFile.getMaxAltitude(), igcFile.getMinAltitude()));
+//        generateTakeOffAndLandingMark(igcFile,document);
+        //       generateTrack(igcFile,document);
+        Configuration cfg = new Configuration(new Version("2.3.27-incubating"));
+        cfg.setClassForTemplateLoading(this.getClass(),"/templates/");
+        cfg.setDefaultEncoding("UTF-8");
 
-       IGCFile igcFile = new IGCFile(inputFile);
-        System.out.println(String.format("File parsed. Pilot %s on Wing %s at %s",igcFile.getPilot(),igcFile.getGliderType(),igcFile.getDate()));
-        System.out.println(String.format("Takeoff time: %s, Landing time: %s, max altitude: %d, min altitude %d.",igcFile.getTakeOffTime(),igcFile.getLandingTime(),igcFile.getMaxAltitude(),igcFile.getMinAltitude()));
-        generateTakeOffAndLandingMark(igcFile,document);
-        generateTrack(igcFile,document);
-        kml.marshal(new File(outputFile));
-    }
+        Template template = cfg.getTemplate("kml.ftl");
 
+        Map<String, Object> templateData = new HashMap<>();
+        templateData.put("igcfile", igcFile);
+        templateData.put("filename",inputFile);
+        templateData.put("filedescription",String.format("Pilot %s on Wing %s at %s", igcFile.getPilot(), igcFile.getGliderType(), igcFile.getDate()));
+        templateData.put("igcreader", this);
+        try (StringWriter out = new StringWriter()) {
 
-    protected void generateTakeOffAndLandingMark(IGCFile igcFile, Document document) {
-        Folder folder = document.createAndAddFolder();
-        String description = "%s on %s (%s). Takeoff time: %s, landing time: %s, max altitude: %d, min altitude %d";
-        folder.withName(String.format(description, igcFile.getPilot(),igcFile.getGliderType(),igcFile.getDate(),igcFile.getTakeOffTime(),igcFile.getLandingTime(),igcFile.getMaxAltitude(),igcFile.getMinAltitude()));
-        IGCBRecord igcbRecordTakeOff=igcFile.getbRecords().get(0);
-        Placemark placemark = folder.createAndAddPlacemark();
-        placemark.withName(String.format("%s on %s (%s). Takeoff %s",igcFile.getPilot(),igcFile.getGliderType(),igcFile.getDate(),igcFile.getTakeOffTime()));
-        placemark.createAndSetPoint().addToCoordinates(igcbRecordTakeOff.getLon(),igcbRecordTakeOff.getLat(),new Double(igcbRecordTakeOff.getAltitudeGps()));
-        IGCBRecord igcbRecordLanding=igcFile.getbRecords().get(igcFile.getbRecords().size()-1);
-        Placemark placemark1 = folder.createAndAddPlacemark();
-        placemark1.withName(String.format("%s on %s (%s). Landing %s",igcFile.getPilot(),igcFile.getGliderType(),igcFile.getDate(),igcFile.getLandingTime()));
-        placemark1.createAndSetPoint().addToCoordinates(igcbRecordLanding.getLon(),igcbRecordLanding.getLat(),new Double(igcbRecordLanding.getAltitudeGps()));
-    }
-
-    protected void generateTrack(IGCFile igcFile, Document document){
-        IGCBRecord lastBRecord = null;
-        //lineString.withExtrude(true);
-
-        Folder folder = document.createAndAddFolder();
-        folder.withName("Track");
-        for (IGCBRecord bRecord: igcFile.getbRecords()){
-            Placemark placemark=folder.createAndAddPlacemark();
-
-            Double climbRate = 0d;
-            if (lastBRecord!=null){
-                climbRate = calculateClimbRate(lastBRecord,bRecord);
-            }
-            LineString lineString = placemark.createAndSetLineString();
-            if (lastBRecord!=null) {
-                lineString.addToCoordinates(lastBRecord.getLon(), lastBRecord.getLat(), new Double(lastBRecord.getAltitudePress() + igcFile.getAltitudePressureCompensation())).withAltitudeMode(AltitudeMode.ABSOLUTE);
-            }
-            lineString.addToCoordinates(bRecord.getLon(), bRecord.getLat(), new Double(bRecord.getAltitudePress()+igcFile.getAltitudePressureCompensation())).withAltitudeMode(AltitudeMode.ABSOLUTE);
-
-            LineStyle lineStyle = placemark.createAndAddStyle().createAndSetLineStyle();
-            lineStyle.withColor(getColorByClimbRate(climbRate)).withWidth(3.0D);
-            lastBRecord = bRecord;
+            template.process(templateData, out);
+            out.flush();
+            FileWriter fw = new FileWriter(outputFile);
+            fw.write(out.toString());
+            fw.close();
         }
     }
 
-    protected String getColorByClimbRate(Double climbRate) {
+    public String getColorByClimbRate(Double climbRate) {
         if ( -5D > climbRate){
             return "#DD00DDFF";
         }
@@ -88,7 +68,7 @@ public class IGCReader {
         return "#EEEEEEFF";
     }
 
-    protected Double calculateClimbRate(IGCBRecord first, IGCBRecord second){
+    public Double calculateClimbRate(IGCBRecord first, IGCBRecord second){
         Double timeInSeconds = secondsSinceMidnight(second.getTime())-secondsSinceMidnight(first.getTime());
         return (second.getAltitudePress()-first.getAltitudePress())/timeInSeconds;
     }
