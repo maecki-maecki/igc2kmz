@@ -1,7 +1,5 @@
 package de.abgruen.igc2kml.model;
 
-import de.micromata.opengis.kml.v_2_2_0.Folder;
-import de.micromata.opengis.kml.v_2_2_0.Placemark;
 
 import java.io.*;
 import java.util.ArrayList;
