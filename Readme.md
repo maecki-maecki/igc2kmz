@@ -28,7 +28,7 @@ This reads in myinputfile.igc in igc format and builds an output file myoutputfi
 - Thus I take the barometric altitude for display but do a correction
 - The correction is a linear interpolation of the difference between GPS and barometric altitude at takeoff and at landing.
 
-## Copyrights & Disclaimer
+## Copyrights and Disclaimer
 - The software is (c) by Stefan Märkle
 - Starting and landing icons are (C) from Becris https://www.shareicon.net/search?c=becris under Creative Commons Attribution 3.0 license.
 - The software is provided 'as-is'. I do not hold liable for anything you do with it.
