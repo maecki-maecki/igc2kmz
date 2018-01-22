@@ -36,7 +36,8 @@ public class IGCBRecord {
     }
 
     public String getTime() {
-        return time;
+
+        return time.substring(0,2)+":"+time.substring(2,4)+":"+time.substring(4,6);
     }
 
     public void setTime(String time) {
@@ -95,6 +96,13 @@ public class IGCBRecord {
         String m = raw.substring(2,4);
         String s = raw.substring(4,6);
         return new Date(); // TODO Date is in another header line HFDTE ...
+    }
+
+    public Double secondsSinceMidnight(){
+        String hour = time.substring(0,2);
+        String min = time.substring(2,4);
+        String sec = time.substring(4,6);
+        return Double.valueOf(sec)+60D*Double.valueOf(min)+60D*60D*Double.valueOf(hour);
     }
 
 }

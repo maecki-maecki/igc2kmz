@@ -16,10 +16,12 @@ public class IGCFile {
     private String takeOffTime;
     private String landingTime;
     private List<IGCBRecord> bRecords = new ArrayList<IGCBRecord>();
-    private int altitudePressureCompensation=0;
+    private int altitudePressureCompensationTakeoff=0;
+    private int altitudePressureCompensationLanding=0;
 
-    public int getAltitudePressureCompensation() {
-        return altitudePressureCompensation;
+    public int getAltitudePressureCompensation(int i) {
+        Double flightProgress = 1D*i/getbRecords().size();
+        return new Double(altitudePressureCompensationTakeoff+flightProgress*(altitudePressureCompensationLanding - altitudePressureCompensationTakeoff)).intValue();
     }
 
     public String getPilot() {
@@ -35,7 +37,8 @@ public class IGCFile {
     }
 
     public String getDate() {
-        return date;
+
+        return date.substring(0,2)+"."+date.substring(2,4)+"."+date.substring(4,6);
     }
 
     public int getMaxAltitude() {
@@ -95,19 +98,30 @@ public class IGCFile {
    }
 
    protected void calculateStatistics(){
-        takeOffTime = bRecords.get(0).getTime();
-        landingTime = bRecords.get(bRecords.size()-1).getTime();
+        takeOffTime = getTakeOff().getTime();
+        altitudePressureCompensationTakeoff=getTakeOff().getAltitudeGps()-getTakeOff().getAltitudePress();
+        altitudePressureCompensationLanding=getLanding().getAltitudeGps()-getLanding().getAltitudePress();
+        landingTime = getLanding().getTime();
 
+        List<Integer> altidudeDifferences = new ArrayList<Integer>();
+        int i=0;
         for (IGCBRecord rec:bRecords){
-            if (rec.getAltitudeGps()>maxAltitude){
-                maxAltitude=rec.getAltitudeGps();
+            if (rec.getAltitudePress()+getAltitudePressureCompensation(i)>maxAltitude){
+                maxAltitude=rec.getAltitudePress()+getAltitudePressureCompensation(i);
             }
-            if (rec.getAltitudeGps()<minAltitude){
-                minAltitude=rec.getAltitudeGps();
+            if (rec.getAltitudePress()+getAltitudePressureCompensation(i)<minAltitude){
+                minAltitude=rec.getAltitudePress()+getAltitudePressureCompensation(i);
             }
+            i++;
         }
-        IGCBRecord startRecord = bRecords.get(0);
-        altitudePressureCompensation = startRecord.getAltitudeGps()-startRecord.getAltitudePress();
+    }
+
+   public IGCBRecord getTakeOff(){
+        return bRecords.get(0);
    }
+
+    public IGCBRecord getLanding(){
+        return bRecords.get(bRecords.size()-1);
+    }
 
 }
