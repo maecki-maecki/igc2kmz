@@ -1,4 +1,4 @@
-# IGC2KML
+# IGC2KMZ
 (c) 2018 by Stefan Märkle <maecki@maecki.de>
 
 ## Introduction
@@ -12,7 +12,7 @@ I wanted to view the climb rates of my paragliding flights in google earth but f
 
 ## Execute
 
-java -jar igc2kml.jar myinputfile.igc myoutputfile.kmz
+java -jar igc2kmz.jar myinputfile.igc myoutputfile.kmz
 
 This reads in myinputfile.igc in igc format and builds an output file myoutputfile.kmz in kmz format suitable for google earth.
 
