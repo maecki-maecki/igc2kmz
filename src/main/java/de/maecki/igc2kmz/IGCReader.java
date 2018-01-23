@@ -1,11 +1,10 @@
-package de.abgruen.igc2kml;
+package de.maecki.igc2kmz;
 
-import de.abgruen.igc2kml.model.IGCBRecord;
-import de.abgruen.igc2kml.model.IGCFile;
+import de.maecki.igc2kmz.model.IGCBRecord;
+import de.maecki.igc2kmz.model.IGCFile;
 
 import java.awt.*;
 import java.io.*;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;

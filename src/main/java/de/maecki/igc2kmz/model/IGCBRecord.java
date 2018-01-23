@@ -1,4 +1,4 @@
-package de.abgruen.igc2kml.model;
+package de.maecki.igc2kmz.model;
 
 import java.util.Date;
 

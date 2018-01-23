@@ -1,4 +1,4 @@
-package de.abgruen.igc2kml;
+package de.maecki.igc2kmz;
 
 import freemarker.template.TemplateException;
 import java.io.IOException;

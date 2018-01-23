@@ -1,9 +1,8 @@
-package de.abgruen.igc2kml.model;
+package de.maecki.igc2kmz.model;
 
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class IGCFile {
