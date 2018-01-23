@@ -32,6 +32,7 @@ It also can be called with just on filename. It then takes that filename, strips
 - So the correction I do is a linear interpolation of the difference between GPS and barometric altitude at takeoff and at landing.
 
 ## Copyrights and Disclaimer
-- The software is (c) by Stefan Märkle
+- This software is (c) by Stefan Märkle
+- This software is provided under Apache License 2.0, see @LICENSE
 - Starting and landing icons are (C) from Becris https://www.shareicon.net/search?c=becris under Creative Commons Attribution 3.0 license.
 - The software is provided 'as-is'. I do not hold liable for anything you do with it.

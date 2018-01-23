@@ -68,15 +68,14 @@ public class IGCBRecord {
         return getAltitudeGps();
     }
 
-
     protected Double parseLat(String raw){
         String deg = raw.substring(0,2);
         String min = raw.substring(2,4);
         String mindec = raw.substring(4,7);
         Double result = Double.valueOf(deg);
-        result *= raw.toUpperCase().endsWith("N")?1D:-1D;
         Double minutes = Double.valueOf(min)+ Double.valueOf(mindec)/1000;
         result += minutes/60D;
+        result *= raw.toUpperCase().endsWith("N")?1D:-1D;
         return result;
     }
 
@@ -85,9 +84,9 @@ public class IGCBRecord {
         String min = raw.substring(3,5);
         String mindec = raw.substring(5,8);
         Double result = Double.valueOf(deg);
-        result *= raw.toUpperCase().endsWith("E")?1D:-1D;
         Double minutes = Double.valueOf(min)+ Double.valueOf(mindec)/1000;
         result += minutes/60D;
+        result *= raw.toUpperCase().endsWith("E")?1D:-1D;
         return result;
     }
 
