@@ -1,5 +1,5 @@
 # IGC2KML
-(c) 2018 by Stefan Märkle <stefan@maerkle.de>
+(c) 2018 by Stefan Märkle <maecki@maecki.de>
 
 ## Introduction
 I wanted to view the climbrates of my paragliding flights in google earth but found no software that was able to color-code this into a google earth file. So i wrote the software myself.
